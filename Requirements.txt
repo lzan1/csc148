@@ -3,3 +3,4 @@ pytest
 Pygame
 matplotlib
 python-ta>=2.7.0
+
