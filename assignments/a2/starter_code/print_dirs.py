@@ -28,6 +28,15 @@ def print_items(d: str, indentation: str) -> None:
         if os.path.isdir(subitem):
             print_items(subitem, indentation + ' -> ')
 
+    """
+    direct = os.listdir(path)
+    for filename in direct:
+        act(filename)
+        subitem = os.path.join(path, filename)
+        if os.path.isdir(subitem):
+            act(subitem)
+    """
+
 
 if __name__ == '__main__':
     # Put in a path like

@@ -130,7 +130,6 @@ class TMTree:
 
         # 2. Set this tree as the parent for each of its subtrees.
         for sub in self._subtrees:
-            #TODO: Ask if this is legal
             sub._parent_tree = self
 
 
@@ -155,6 +154,29 @@ class TMTree:
         # Programming tip: use "tuple unpacking assignment" to easily extract
         # elements of a rectangle, as follows.
         # x, y, width, height = rect
+        x, y, width, height = rect
+        if self.data_size == 0:
+            self.rect = 0
+        elif self._subtrees == []:
+            self.rect = rect
+        else:
+            """
+            a good stepping stone is to think about:
+            when the tree has y = 2, and all leaves 
+            have the same data_size values. 
+            In this case, the original rectangle should
+            be partitioned into equal-sized rectangles 
+            (modulo rounding issues)."""
+            total_size = sum([sub.data_size for sub in self._subtrees])
+            pushx, pushy = 0, 0
+            for sub in self._subtrees:
+                percent_total = self.data_size/total_size
+                if height >= width:
+                    sub.update_rectangles(x + pushx, y + pushy, width * percent_total, height)
+                    pushx += width * percent_total
+                else: #Vertical rectangle
+                    sub.update_rectangles(x + pushx, y + pushy, width, height * percent_total)
+                    pushy += height * percent_total
 
     def get_rectangles(self) -> List[Tuple[Tuple[int, int, int, int],
                                            Tuple[int, int, int]]]:
@@ -164,6 +186,13 @@ class TMTree:
         to fill it with.
         """
         # TODO: (Task 2) Complete the body of this method.
+        if not self._subtrees:
+            return [(self.rect, self._colour)]
+        else:
+            result = []
+            for sub in self._subtrees:
+                result.extend(sub.get_rectangles())
+            return result
 
     def get_tree_at_position(self, pos: Tuple[int, int]) -> Optional[TMTree]:
         """Return the leaf in the displayed-tree rooted at this tree whose
@@ -252,7 +281,6 @@ class FileSystemTree(TMTree):
     The data_size attribute for regular files is simply the size of the file,
     as reported by os.path.getsize.
     """
-
     def __init__(self, path: str) -> None:
         """Store the file tree structure contained in the given file or folder.
 
@@ -264,6 +292,36 @@ class FileSystemTree(TMTree):
         #
         # Also remember to make good use of the superclass constructor!
         # TODO: (Task 1) Implement the initializer
+        #Returns a list of directories
+
+        # result = FileSystemTree(path)
+        if os.path.isdir(path):
+            direct = os.listdir(path)
+            super().__init__(direct[0], [])
+            for filename in direct:
+                subitem = os.path.join(path, filename)
+                if os.path.isdir(subitem):
+                    nextpath = ''.join(direct[1:])
+                    self._subtrees.append(super().__init__(
+                        os.path.basename(nextpath), [], os.path.getsize(nextpath)))
+        else:
+            super().__init__(os.path.basename(path), [], os.path.getsize(path))
+
+
+
+
+        # direct = os.listdir(path)
+        # # If is file (leaf): create new FileSystemTree objects for each file
+        # if len(direct) == 1:
+        #      a = FileSystemTree(path)
+        # else:
+        #     # If folder, create new FileSystemTree object for each folder
+        #     if os.path.isdir(direct[0]):
+        #         a = FileSystemTree(path)
+        #         a._subtrees.append(FileSystemTree(''.join(direct[1:])))
+        #     else:
+        #         pass
+
 
 
     def get_separator(self) -> str:

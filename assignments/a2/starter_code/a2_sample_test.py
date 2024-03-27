@@ -54,9 +54,14 @@ def test_single_file() -> None:
     """Test a tree with a single file.
     """
     tree = FileSystemTree(os.path.join(EXAMPLE_PATH, 'draft.pptx'))
+    # assert os.path.isdir(os.path.basename(os.path.join(EXAMPLE_PATH, 'draft.pptx'))) == True
+    # print(os.path.join(EXAMPLE_PATH, 'draft.pptx'))
+    # assert tree.count >= 1
+    #Error Here
     assert tree._name == 'draft.pptx'
     assert tree._subtrees == []
     assert tree._parent_tree is None
+    #Error Here
     assert tree.data_size == 58
     assert is_valid_colour(tree._colour)
 
