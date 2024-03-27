@@ -202,7 +202,18 @@ class TMTree:
         If <pos> is on the shared edge between two or more rectangles,
         always return the leftmost and topmost rectangle (wherever applicable).
         """
-        # TODO: (Task 3) Complete the body of this method
+        x, y, width, height = self.rect
+        if not self._subtrees:
+            if (x <= pos[0] <= x + width) and (y <= pos[1] <= y + height):
+                return self
+            else:
+                return None
+        else:
+            for sub in self._subtrees:
+                if sub.get_tree_at_position(pos):
+                    return sub.get_tree_at_position(pos)
+            return None
+
 
     def update_data_sizes(self) -> int:
         """Update the data_size for this tree and its subtrees, based on the
