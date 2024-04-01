@@ -86,17 +86,17 @@ class Visualiser:
             return
 
         # TODO: Uncomment this after you have completed Task 2
-        # for rect, colour in self.tree.get_rectangles():
-        #     # Note that the arguments are in the opposite order
-        #     pygame.draw.rect(subscreen, colour, rect)
-        #
-        # # add the hover rectangle
-        # if self.selected_node is not None:
-        #     pygame.draw.rect(subscreen, (255, 255, 255), self.selected_node.rect, 4)
-        # if self.hover_node is not None:
-        #     pygame.draw.rect(subscreen, (255, 255, 255), self.hover_node.rect, 2)
-        #
-        # self._render_text()
+        for rect, colour in self.tree.get_rectangles():
+            # Note that the arguments are in the opposite order
+            pygame.draw.rect(subscreen, colour, rect)
+
+        # add the hover rectangle
+        if self.selected_node is not None:
+            pygame.draw.rect(subscreen, (255, 255, 255), self.selected_node.rect, 4)
+        if self.hover_node is not None:
+            pygame.draw.rect(subscreen, (255, 255, 255), self.hover_node.rect, 2)
+
+        self._render_text()
 
         # This must be called *after* all other pygame functions have run.
         pygame.display.flip()
