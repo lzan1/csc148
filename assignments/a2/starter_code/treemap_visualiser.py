@@ -19,7 +19,7 @@ concrete subclass, of course), rendering it to the user using pygame,
 and detecting user events like mouse clicks and key presses and responding
 to them.
 """
-
+import os
 from os import getcwd
 from sys import platform
 from typing import Optional
@@ -274,6 +274,7 @@ def run_treemap_papers() -> None:
 
 if __name__ == '__main__':
     visualizer = Visualiser()
-    PATH_TO_VISUALISE = ''  # enter a custom path here if you wish
+    # PATH_TO_VISUALISE = ''  # enter a custom path here if you wish
+    PATH_TO_VISUALISE = os.path.join(os.getcwd(), 'example-directory')
     run_treemap_file_system(PATH_TO_VISUALISE or getcwd())
     # run_treemap_papers()

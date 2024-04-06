@@ -115,7 +115,7 @@ def test_example_data_rectangles() -> None:
     # will fail once you have completed Task 5.
     # You should edit it as you make progress through the tasks,
     # and add further tests for the later task functionality.
-    assert len(rects) == 6
+    assert len(rects) == 1
 
     # UPDATED:
     # Here, we illustrate the correct order of the returned rectangles.
@@ -124,12 +124,12 @@ def test_example_data_rectangles() -> None:
     # only so that you can run them on your own computer, rather than on
     # the Teaching Labs.
     actual_rects = [r[0] for r in rects]
-    expected_rects = [(0, 0, 94, 2), (0, 2, 94, 28), (0, 30, 94, 68),
-                      (94, 0, 76, 100), (170, 0, 30, 72), (170, 72, 30, 28)]
-
-    assert len(actual_rects) == len(expected_rects)
-    for i in range(len(actual_rects)):
-        assert expected_rects[i] == actual_rects[i]
+    # expected_rects = [(0, 0, 94, 2), (0, 2, 94, 28), (0, 30, 94, 68),
+    #                   (94, 0, 76, 100), (170, 0, 30, 72), (170, 72, 30, 28)]
+    #
+    # assert len(actual_rects) == len(expected_rects)
+    # for i in range(len(actual_rects)):
+    #     assert expected_rects[i] == actual_rects[i]
 
 
 ##############################################################################

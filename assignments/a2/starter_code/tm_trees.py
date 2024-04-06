@@ -156,7 +156,7 @@ class TMTree:
         if self.data_size == 0:
             self.rect = 0, 0, 0, 0
         #Elif self is parent tree, or is child with parent tree expanded
-        elif not self._expanded:
+        elif not self._expanded or not self._subtrees:
             self.rect = rect
         else:
             #If self is expanded
@@ -197,7 +197,7 @@ class TMTree:
         #Returns the actual rectangles (color)
         #If you want to show self's subtrees
         # self._expanded = True
-        if self._expanded:
+        if self._expanded and self._subtrees:
             # return [((0,0,100,200), green)]
             # if self._parent_tree and self._parent_tree._expanded:
             #     return [(self.rect, self._colour)]
@@ -211,9 +211,9 @@ class TMTree:
                 # if sub.rect is not None:
                 #     return [((0,0,200,200), sub._colour)]
                 #Just returns self.rect
-                # sub.update_rectangles(sub.rect)
-                result.append((sub.rect, sub._colour))
-                # result.extend(sub.get_rectangles())
+                # result.append((sub.rect, sub._colour))
+                # result.append((sub.rect, sub._colour))
+                result.extend(sub.get_rectangles())
             return result
         return [(self.rect, self._colour)]
 
@@ -273,7 +273,16 @@ class TMTree:
         Do nothing if this tree is not a leaf.
         """
         if self._subtrees is None or self._subtrees == []:
-            amnt = math.ceil(self.data_size * (1 + factor))
+            if self.data_size == 0:
+                if factor > 0:
+                    amnt = 0
+                else:
+                    amnt = 1
+            else:
+                if factor > 0:
+                    amnt = math.ceil(self.data_size * (1 + factor))
+                else:
+                    amnt = math.floor(self.data_size * (1 + factor))
             self.data_size = amnt
 
     def delete_self(self) -> bool:
@@ -295,15 +304,27 @@ class TMTree:
 
     # TODO: (Task 5) Write the methods expand, expand_all, collapse, and
     def expand(self) -> None:
-        self._expanded = True
+        if self._subtrees:
+            self._expanded = True
         # for s in self._subtrees:
         #     s.expand()
 
     def expand_all(self) -> None:
-        self._expanded = True
-        if self._subtrees is not None:
+        # if self._subtrees:
+        #     self._expanded = True
+        #     for s in self._subtrees:
+        #         if s._subtrees:
+        #             s.expand_all()
+        if self._subtrees:
+            self._expanded = True
+            self.update_rectangles(self.rect)
+            # Accessding any of self's subtrees gives a black screen
+            # self._subtrees[0]._expanded = True
             for s in self._subtrees:
                 s.expand_all()
+                #s.rect = 0,0,0,0
+                # s.rect = s.get_rectangles()[0]
+                # s.update_rectangles(self.rect)
 
     def collapse(self) -> None:
         self._expanded = False
