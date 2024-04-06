@@ -90,9 +90,9 @@ class Visualiser:
             # Note that the arguments are in the opposite order
             pygame.draw.rect(subscreen, colour, rect)
 
-        # add the hover rectangle
+        # add the hover & select rectangle
         if self.selected_node is not None:
-            pygame.draw.rect(subscreen, (255, 255, 255), self.selected_node.rect, 4)
+            pygame.draw.rect(subscreen, (255, 255, 255), self.selected_node.rect, 2)
         if self.hover_node is not None:
             pygame.draw.rect(subscreen, (255, 255, 255), self.hover_node.rect, 2)
 

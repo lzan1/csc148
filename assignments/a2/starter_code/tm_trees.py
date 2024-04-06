@@ -107,10 +107,9 @@ class TMTree:
         self._expanded = False
 
         # You will change this in Task 5
-        if len(self._subtrees) > 0:
-            self._expanded = True
-        else:
-            self._expanded = False
+        # if len(self._subtrees) > 0:
+        #     for sub in self._subtrees:
+        #         sub._expanded = False
 
         # TODO: (Task 1) Complete this initializer by doing two things:
         # 1. Initialize self._colour and self.data_size, according to the
@@ -118,13 +117,8 @@ class TMTree:
         if self._subtrees == []:
             self.data_size = data_size
         else:
-            # calculate this tree's data_size
-            # data_size is equal to the sum of the
-            # data_size of each subtree
-            self.data_size = 0
-            self._expanded = False
-            for sub in self._subtrees:
-                self.data_size += sub.data_size
+            self.data_size = sum([sub.data_size for sub in self._subtrees])
+            # self._expanded = False
 
         # Initialize self._colour
         r, g, b = randint(0, 225), randint(0, 225), randint(0, 225)
@@ -156,51 +150,41 @@ class TMTree:
         # Programming tip: use "tuple unpacking assignment" to easily extract
         # elements of a rectangle, as follows.
         # x, y, width, height = rect
-        if self._expanded:
-            x, y, width, height = rect
-            if self.data_size == 0:
-                self.rect = 0, 0, 0, 0
-            elif self._subtrees == [] or self._subtrees is None:
-                self.rect = rect
-            else:
-                total_size = sum([sub.data_size for sub in self._subtrees])
-                pushx, actualx, pushy, actualy = 0, 0, 0, 0
-                for i in range(len(self._subtrees)):
-                    percent_total = self._subtrees[i].data_size/total_size
-                    if width < height:
-                        if i == len(self._subtrees) - 1:
-                            self._subtrees[i].update_rectangles((x + pushx, y + pushy, width, math.ceil(height * percent_total)-y))
-                            actualy += height * percent_total - y
-                            pushy = math.ceil(actualy)
-                        else:
-                            #Vertical rectangle
-                            self._subtrees[i].update_rectangles((x + pushx, y + pushy, width, math.floor(height * percent_total)))
-                            actualy += height * percent_total
-                            pushy = math.floor(actualy)
-                            # if sub._subtrees or sub._subtrees is None:
-                            #     sub.update_rectangles((x + pushx, y + pushy, width, height * percent_total))
-                            #     pushy += height * percent_total
-                            # else:
-                            #     sub.update_rectangles((x + pushx, y + pushy, width, math.floor(height * percent_total)))
-                            #     pushy += math.floor(height * percent_total)
-
+        # if self._expanded:
+        x, y, width, height = rect
+        #If self is not expanded
+        if self.data_size == 0:
+            self.rect = 0, 0, 0, 0
+        #Elif self is parent tree, or is child with parent tree expanded
+        elif not self._expanded:
+            self.rect = rect
+        else:
+            #If self is expanded
+            total_size = sum([sub.data_size for sub in self._subtrees])
+            pushx, actualx, pushy, actualy = 0, 0, 0, 0
+            for i in range(len(self._subtrees)):
+                percent_total = self._subtrees[i].data_size/total_size
+                if width < height:
+                    if i == len(self._subtrees) - 1:
+                        self._subtrees[i].update_rectangles((x + pushx, y + pushy, width, math.ceil(height * percent_total)-y))
+                        actualy += height * percent_total - y
+                        pushy = math.ceil(actualy)
                     else:
-                        if i == len(self._subtrees) - 1:
-                            self._subtrees[i].update_rectangles((x + pushx, y + pushy, math.ceil(width * percent_total)-x, height))
-                            actualx += width * percent_total - x
-                            pushx = math.ceil(actualx)
-                        else:
-                            self._subtrees[i].update_rectangles((x + pushx, y + pushy, math.floor(width * percent_total), height))
-                            actualx += width * percent_total
-                            pushx = math.floor(actualx)
-                            # if sub._subtrees or sub._subtrees is None:
-                            #     sub.update_rectangles((x + pushx, y + pushy, width * percent_total, height))
-                            #     pushx += width * percent_total
-                            # else:
-                            #     sub.update_rectangles((x + pushx, y + pushy, math.floor(width * percent_total), height))
-                            #     pushx += math.floor(width * percent_total)
+                        #Vertical rectangle
+                        self._subtrees[i].update_rectangles((x + pushx, y + pushy, width, math.floor(height * percent_total)))
+                        actualy += height * percent_total
+                        pushy = math.floor(actualy)
+                else:
+                    if i == len(self._subtrees) - 1:
+                        self._subtrees[i].update_rectangles((x + pushx, y + pushy, math.ceil(width * percent_total)-x, height))
+                        actualx += width * percent_total - x
+                        pushx = math.ceil(actualx)
+                    else:
+                        self._subtrees[i].update_rectangles((x + pushx, y + pushy, math.floor(width * percent_total), height))
+                        actualx += width * percent_total
+                        pushx = math.floor(actualx)
 
-
+    #Used in for rect, color in self.tree.get_rectangles()
     def get_rectangles(self) -> List[Tuple[Tuple[int, int, int, int],
                                            Tuple[int, int, int]]]:
         """Return a list with tuples for every leaf in the displayed-tree
@@ -208,14 +192,29 @@ class TMTree:
         appropriate pygame rectangle to display for a leaf, and the colour
         to fill it with.
         """
+        green = (0, 255, 51)
+        madeItMauve = (97, 26, 79)
+        #Returns the actual rectangles (color)
+        #If you want to show self's subtrees
+        # self._expanded = True
         if self._expanded:
-            if not self._subtrees or self._subtrees == []:
-                return [(self.rect, self._colour)]
-            else:
-                result = []
-                for sub in self._subtrees:
-                    result.extend(sub.get_rectangles())
-                return result
+            # return [((0,0,100,200), green)]
+            # if self._parent_tree and self._parent_tree._expanded:
+            #     return [(self.rect, self._colour)]
+            # else:
+            # return [((0,0,100,200), (green))]
+            result = []
+            startx, starty = 0, 0
+            self.update_rectangles(self.rect)
+            for sub in self._subtrees:
+                #sub.rect is (0,0,0,0) and not None. self.data size is fine though.
+                # if sub.rect is not None:
+                #     return [((0,0,200,200), sub._colour)]
+                #Just returns self.rect
+                # sub.update_rectangles(sub.rect)
+                result.append((sub.rect, sub._colour))
+                # result.extend(sub.get_rectangles())
+            return result
         return [(self.rect, self._colour)]
 
     def get_tree_at_position(self, pos: Tuple[int, int]) -> Optional[TMTree]:
@@ -226,18 +225,19 @@ class TMTree:
         If <pos> is on the shared edge between two or more rectangles,
         always return the leftmost and topmost rectangle (wherever applicable).
         """
-        if self._expanded:
-            x, y, width, height = self.rect
-            if not self._subtrees or self._subtrees == []:
-                if (x <= pos[0] <= x + width) and (y <= pos[1] <= y + height):
-                    return self
-                else:
-                    return None
+        x, y, width, height = self.rect
+        #If self's parent tree is expanded
+        if (self._parent_tree and self._parent_tree._expanded
+                and not self._expanded):
+            if (x <= pos[0] <= x + width) and (y <= pos[1] <= y + height):
+                return self
             else:
-                for sub in self._subtrees:
-                    if sub.get_tree_at_position(pos):
-                        return sub.get_tree_at_position(pos)
                 return None
+        else:
+            for sub in self._subtrees:
+                if sub.get_tree_at_position(pos):
+                    return sub.get_tree_at_position(pos)
+            return None
 
 
     def update_data_sizes(self) -> int:
@@ -273,7 +273,7 @@ class TMTree:
         Do nothing if this tree is not a leaf.
         """
         if self._subtrees is None or self._subtrees == []:
-            amnt = math.ceil(self.data_size * factor)
+            amnt = math.ceil(self.data_size * (1 + factor))
             self.data_size = amnt
 
     def delete_self(self) -> bool:
@@ -296,25 +296,32 @@ class TMTree:
     # TODO: (Task 5) Write the methods expand, expand_all, collapse, and
     def expand(self) -> None:
         self._expanded = True
+        # for s in self._subtrees:
+        #     s.expand()
 
     def expand_all(self) -> None:
         self._expanded = True
-        if self._subtrees == [] or self._subtrees is None:
-            self._expanded = True
-        else:
+        if self._subtrees is not None:
             for s in self._subtrees:
                 s.expand_all()
 
     def collapse(self) -> None:
         self._expanded = False
+        # if not self._parent_tree:
+        #     self._expanded = True
+        # else:
+        #     self._parent_tree._expanded = False
 
     def collapse_all(self) -> None:
+        #If this node has no parent trees
         self._expanded = False
-        if self._subtrees == [] or self._subtrees is None:
-            self._expanded = False
-        else:
-            for s in self._subtrees:
-                s.collapse_all()
+        if self._parent_tree:
+            self._parent_tree.collapse_all()
+        # if self._subtrees == [] or self._subtrees is None:
+        #     self._expanded = False
+        # else:
+        #     for s in self._subtrees:
+        #         s.collapse_all()
 
     # TODO: collapse_all, and add the displayed-tree functionality to the
     # TODO: methods from Tasks 2 and 3
