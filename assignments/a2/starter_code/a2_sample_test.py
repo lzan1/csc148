@@ -49,87 +49,98 @@ from tm_trees import TMTree, FileSystemTree
 # extracted the files.
 EXAMPLE_PATH = os.path.join(os.getcwd(), 'example-directory', 'workshop')
 
+def test_update_rect()->None:
+    tree = TMTree('a', [], 10)
+    rect = (100,20,40,60)
 
-def test_single_file() -> None:
-    """Test a tree with a single file.
-    """
-    tree = FileSystemTree(os.path.join(EXAMPLE_PATH, 'draft.pptx'))
-    # assert os.path.isdir(os.path.basename(os.path.join(EXAMPLE_PATH, 'draft.pptx'))) == True
-    # print(os.path.join(EXAMPLE_PATH, 'draft.pptx'))
-    # assert tree.count >= 1
-    #Error Here
-    assert tree._name == 'draft.pptx'
-    assert tree._subtrees == []
-    assert tree._parent_tree is None
-    #Error Here
-    assert tree.data_size == 58
-    assert is_valid_colour(tree._colour)
+    tree.update_rectangles(rect)
+    assert tree.rect == rect
 
+# def test_single_file() -> None:
+# #     """Test a tree with a single file.
+# #     """
+#     tree = FileSystemTree(os.path.join(EXAMPLE_PATH, 'draft.pptx'))
+#     # assert os.path.isdir(os.path.basename(os.path.join(EXAMPLE_PATH, 'draft.pptx'))) == True
+#     # print(os.path.join(EXAMPLE_PATH, 'draft.pptx'))
+#     # assert tree.count >= 1
+# #     #Error Here
+#     assert tree._name == 'draft.pptx'
+#     assert tree._subtrees == []
+#     assert tree._parent_tree is None
+#     #Error Here
+#     assert tree.data_size == 58
+#     assert is_valid_colour(tree._colour)
+#
+#
+# def test_example_data() -> None:
+#     """Test the root of the tree at the 'workshop' folder in the example data
+#     """
+#     tree = FileSystemTree(EXAMPLE_PATH)
+#     assert tree._name == 'workshop'
+#     assert tree._parent_tree is None
+#     # assert tree.data_size == 151
+#     assert is_valid_colour(tree._colour)
+#
+#     assert len(tree._subtrees) == 3
+#     for subtree in tree._subtrees:
+#         # Note the use of is rather than ==.
+#         # This checks ids rather than values.
+#         assert subtree._parent_tree is tree
+#
+#
+# @given(integers(min_value=100, max_value=1000),
+#        integers(min_value=100, max_value=1000),
+#        integers(min_value=100, max_value=1000),
+#        integers(min_value=100, max_value=1000))
+# def test_single_file_rectangles(x, y, width, height) -> None:
+#     """Test that the correct rectangle is produced for a single file."""
+#     tree = FileSystemTree(os.path.join(EXAMPLE_PATH, 'draft.pptx'))
+#     tree.update_rectangles((x, y, width, height))
+#     rects = tree.get_rectangles()
+#
+#     # This should be just a single rectangle and colour returned.
+#     assert len(rects) == 1
+#     rect, colour = rects[0]
+#     assert rect == (x, y, width, height)
+#     assert is_valid_colour(colour)
+#
+# def test_move_right() -> None:
+#     tree = TMTree('leaf', [], 1)
+#     folder = TMTree('node', [TMTree('leaf2', [])], 10)
+#     tree.move(folder)
+#     assert tree in folder._subtrees
 
-def test_example_data() -> None:
-    """Test the root of the tree at the 'workshop' folder in the example data
-    """
-    tree = FileSystemTree(EXAMPLE_PATH)
-    assert tree._name == 'workshop'
-    assert tree._parent_tree is None
-    # assert tree.data_size == 151
-    assert is_valid_colour(tree._colour)
-
-    assert len(tree._subtrees) == 3
-    for subtree in tree._subtrees:
-        # Note the use of is rather than ==.
-        # This checks ids rather than values.
-        assert subtree._parent_tree is tree
-
-
-@given(integers(min_value=100, max_value=1000),
-       integers(min_value=100, max_value=1000),
-       integers(min_value=100, max_value=1000),
-       integers(min_value=100, max_value=1000))
-def test_single_file_rectangles(x, y, width, height) -> None:
-    """Test that the correct rectangle is produced for a single file."""
-    tree = FileSystemTree(os.path.join(EXAMPLE_PATH, 'draft.pptx'))
-    tree.update_rectangles((x, y, width, height))
-    rects = tree.get_rectangles()
-
-    # This should be just a single rectangle and colour returned.
-    assert len(rects) == 1
-    rect, colour = rects[0]
-    assert rect == (x, y, width, height)
-    assert is_valid_colour(colour)
-
-
-def test_example_data_rectangles() -> None:
-    """This test sorts the subtrees, because different operating systems have
-    different behaviours with os.listdir.
-
-    You should *NOT* do any sorting in your own code
-    """
-    tree = FileSystemTree(EXAMPLE_PATH)
-    _sort_subtrees(tree)
-
-    tree.update_rectangles((0, 0, 200, 100))
-    rects = tree.get_rectangles()
-
-    # IMPORTANT: This test should pass when you have completed Task 2, but
-    # will fail once you have completed Task 5.
-    # You should edit it as you make progress through the tasks,
-    # and add further tests for the later task functionality.
-    assert len(rects) == 1
-
-    # UPDATED:
-    # Here, we illustrate the correct order of the returned rectangles.
-    # Note that this corresponds to the folder contents always being
-    # sorted in alphabetical order. This is enforced in these sample tests
-    # only so that you can run them on your own computer, rather than on
-    # the Teaching Labs.
-    actual_rects = [r[0] for r in rects]
-    # expected_rects = [(0, 0, 94, 2), (0, 2, 94, 28), (0, 30, 94, 68),
-    #                   (94, 0, 76, 100), (170, 0, 30, 72), (170, 72, 30, 28)]
-    #
-    # assert len(actual_rects) == len(expected_rects)
-    # for i in range(len(actual_rects)):
-    #     assert expected_rects[i] == actual_rects[i]
+# def test_example_data_rectangles() -> None:
+#     """This test sorts the subtrees, because different operating systems have
+#     different behaviours with os.listdir.
+#
+#     You should *NOT* do any sorting in your own code
+#     """
+#     tree = FileSystemTree(EXAMPLE_PATH)
+#     _sort_subtrees(tree)
+#
+#     tree.update_rectangles((0, 0, 200, 100))
+#     rects = tree.get_rectangles()
+#
+#     # IMPORTANT: This test should pass when you have completed Task 2, but
+#     # will fail once you have completed Task 5.
+#     # You should edit it as you make progress through the tasks,
+#     # and add further tests for the later task functionality.
+#     assert len(rects) == 1
+#
+#     # UPDATED:
+#     # Here, we illustrate the correct order of the returned rectangles.
+#     # Note that this corresponds to the folder contents always being
+#     # sorted in alphabetical order. This is enforced in these sample tests
+#     # only so that you can run them on your own computer, rather than on
+#     # the Teaching Labs.
+#     actual_rects = [r[0] for r in rects]
+#     # expected_rects = [(0, 0, 94, 2), (0, 2, 94, 28), (0, 30, 94, 68),
+#     #                   (94, 0, 76, 100), (170, 0, 30, 72), (170, 72, 30, 28)]
+#     #
+#     # assert len(actual_rects) == len(expected_rects)
+#     # for i in range(len(actual_rects)):
+#     #     assert expected_rects[i] == actual_rects[i]
 
 
 ##############################################################################

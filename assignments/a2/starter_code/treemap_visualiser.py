@@ -275,6 +275,7 @@ def run_treemap_papers() -> None:
 if __name__ == '__main__':
     visualizer = Visualiser()
     # PATH_TO_VISUALISE = ''  # enter a custom path here if you wish
-    PATH_TO_VISUALISE = os.path.join(os.getcwd(), 'example-directory')
-    run_treemap_file_system(PATH_TO_VISUALISE or getcwd())
-    # run_treemap_papers()
+    # PATH_TO_VISUALISE = os.path.join(os.getcwd(), 'example-directory')
+    # PATH_TO_VISUALISE = os.path.join('D:\\lzan\\Education\\UTM', 'Year1')
+    # run_treemap_file_system(PATH_TO_VISUALISE or getcwd())
+    run_treemap_papers()

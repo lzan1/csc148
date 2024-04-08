@@ -97,11 +97,13 @@ class PaperTree(TMTree):
     """
 
     # TODO: Add the type contracts for your new attributes here
+    authors: str
+    doi: str
 
     def __init__(self, name: str, subtrees: List[TMTree], authors: str = '',
                  doi: str = '', citations: int = 0, by_year: bool = True,
                  all_papers: bool = False) -> None:
-        """Initialize a new PaperTree with the given <name> and <subtrees>, 
+        """Initialize a new PaperTree with the given <name> and <subtrees>,
         <authors> and <doi>, and with <citations> as the size of the data.
 
         If <all_papers> is True, then this tree is to be the root of the paper
@@ -116,26 +118,109 @@ class PaperTree(TMTree):
         """
         # TODO: Complete this initializer. Your implementation must not
         # TODO: duplicate anything done in the superclass initializer.
+        self.authors = authors
+        self.doi = doi
+        if all_papers:
+            # this tree is to be the root of the paper
+            # tree. In that case, load data about papers from DATA_FILE to build the
+            # tree.
+            if by_year:
+                # first level of subtrees should be
+                # the years, followed by each category, subcategory, and so on
+                dict_tree = _load_papers_to_dict()
+            else:
+                # Year in dataset should be ignored
+                dict_tree = _load_papers_to_dict(False)
+            tree = _build_tree_from_dict(dict_tree)
+            super().__init__(name, tree, citations)
+        else:
+            #Do NOT load new data
+            super().__init__(name, subtrees, citations)
 
+    def get_separator(self) -> str:
+        """Return the string used to separate names in the string
+        representation of a path from the tree root to this tree.
+        """
+        return '\\'
+
+    def get_suffix(self) -> str:
+        """Return the string used at the end of the string representation of
+        a path from the tree root to this tree.
+        """
+        if not self._subtrees:
+            return ' (Paper, ' + str(self.data_size) + ')'
+        else:
+            return ' (Category, ' + str(self.data_size) + ')'
 
 def _load_papers_to_dict(by_year: bool = True) -> Dict:
     """Return a nested dictionary of the data read from the papers dataset file.
-
     If <by_year>, then use years as the roots of the subtrees of the root of
     the whole tree. Otherwise, ignore years and use categories only.
     """
-    # TODO: Implement this helper, or remove it if you do not plan to use it
 
+    env = {}
+    paths = []
+    with open(DATA_FILE, 'r') as csv_file:
+        csv_reader = csv.reader(csv_file)
+        next(csv_reader)
+        i = 2
+        for row in csv_reader:
+            year = row[2]
+            categories = row[3].split(': ')
+            if by_year:
+                paths.append([year] + categories + [i])
+            else:
+                paths.append(categories + [i])
+            i += 1
+        for path in paths:
+            _list_to_dict(path, env)
+    return env
+
+
+def _list_to_dict(hier_list: List, env: Dict) -> None:
+    # If list is empty
+    if not hier_list:
+        return
+    else:
+        # Get top category
+        parent = hier_list.pop(0)
+        # If category doesn't exist in nested-dict
+        if parent not in env:
+            env[parent] = {}
+        _list_to_dict(hier_list, env[parent])
 
 
 def _build_tree_from_dict(nested_dict: Dict) -> List[PaperTree]:
     """Return a list of trees from the nested dictionary <nested_dict>.
     """
-    # TODO: Implement this helper, or remove it if you do not plan to use it
+    tree = []
+    for key, value in nested_dict.items():
+        if value == {}:
+            author, title, year, category, url, citations = _retrieve_row(key)
+            # print(data)
+            tree.append(PaperTree(title, [], author, url, int(citations)))
+        else:
+            tree.append(PaperTree(key, _build_tree_from_dict(value)))
+    return tree
+
+
+def _retrieve_row(num: int) -> any:
+    """
+    store all the data into self._data
+    """
+    with open(DATA_FILE, 'r') as csv_file:
+        csv_reader = csv.reader(csv_file)
+        i = 1
+        for line in csv_reader:
+            if i == num:
+                return line
+            i += 1
+        return ''
 
 
 if __name__ == '__main__':
     import python_ta
+
     python_ta.check_all(config={
         'allowed-import-modules': ['python_ta', 'typing', 'csv', 'tm_trees'],
         'allowed-io': ['_load_papers_to_dict'],

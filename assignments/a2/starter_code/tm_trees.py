@@ -114,7 +114,7 @@ class TMTree:
         # TODO: (Task 1) Complete this initializer by doing two things:
         # 1. Initialize self._colour and self.data_size, according to the
         # docstring.
-        if self._subtrees == []:
+        if not self._subtrees:
             self.data_size = data_size
         else:
             self.data_size = sum([sub.data_size for sub in self._subtrees])
@@ -144,6 +144,34 @@ class TMTree:
         treemap algorithm to fill the area defined by pygame rectangle <rect>.
         """
         # TODO: (Task 2) Complete the body of this method.
+        x, y, width, height = rect
+        if self.data_size == 0:
+            self.rect = (0, 0, 0, 0)
+        elif width > height:
+            self.rect = rect
+            #One var for updating start details
+            pushx = x
+            for i in range(len(self._subtrees)):
+                if i == len(self._subtrees) - 1:
+                    # The last one must make up take up all remaining space
+                    updateW = width + x - pushx
+                else:
+                    percent_total = self._subtrees[i].data_size / self.data_size
+                    updateW = math.floor(width * percent_total)
+                self._subtrees[i].update_rectangles((pushx, y, updateW, height))
+                pushx += updateW
+        else:
+            self.rect = rect
+            pushy = y
+            for i in range(len(self._subtrees)):
+                if i == len(self._subtrees) - 1:
+                    # The last one must make up take up all remaining space
+                    updateH = height + y - pushy
+                else:
+                    percent_total = self._subtrees[i].data_size / self.data_size
+                    updateH = math.floor(height * percent_total)
+                self._subtrees[i].update_rectangles((x, pushy, width, updateH))
+                pushy += updateH
         # Read the handout carefully to help get started identifying base cases,
         # then write the outline of a recursive step.
         #
@@ -151,38 +179,39 @@ class TMTree:
         # elements of a rectangle, as follows.
         # x, y, width, height = rect
         # if self._expanded:
-        x, y, width, height = rect
-        #If self is not expanded
-        if self.data_size == 0:
-            self.rect = 0, 0, 0, 0
-        #Elif self is parent tree, or is child with parent tree expanded
-        elif not self._expanded or not self._subtrees:
-            self.rect = rect
-        else:
-            #If self is expanded
-            total_size = sum([sub.data_size for sub in self._subtrees])
-            pushx, actualx, pushy, actualy = 0, 0, 0, 0
-            for i in range(len(self._subtrees)):
-                percent_total = self._subtrees[i].data_size/total_size
-                if width < height:
-                    if i == len(self._subtrees) - 1:
-                        self._subtrees[i].update_rectangles((x + pushx, y + pushy, width, math.ceil(height * percent_total)-y))
-                        actualy += height * percent_total - y
-                        pushy = math.ceil(actualy)
-                    else:
-                        #Vertical rectangle
-                        self._subtrees[i].update_rectangles((x + pushx, y + pushy, width, math.floor(height * percent_total)))
-                        actualy += height * percent_total
-                        pushy = math.floor(actualy)
-                else:
-                    if i == len(self._subtrees) - 1:
-                        self._subtrees[i].update_rectangles((x + pushx, y + pushy, math.ceil(width * percent_total)-x, height))
-                        actualx += width * percent_total - x
-                        pushx = math.ceil(actualx)
-                    else:
-                        self._subtrees[i].update_rectangles((x + pushx, y + pushy, math.floor(width * percent_total), height))
-                        actualx += width * percent_total
-                        pushx = math.floor(actualx)
+        # ////
+        # x, y, width, height = rect
+        # #If self is not expanded
+        # if self.data_size == 0:
+        #     self.rect = 0, 0, 0, 0
+        # #Elif self isn't expanded, or is a leaf
+        # elif not self._expanded or not self._subtrees:
+        #     self.rect = rect
+        # else:
+        #     #If self is expanded and has leaves
+        #     total_size = sum([sub.data_size for sub in self._subtrees])
+        #     pushx, actualx, pushy, actualy = 0, 0, 0, 0
+        #     for i in range(len(self._subtrees)):
+        #         percent_total = self._subtrees[i].data_size/total_size
+        #         if width < height:
+        #             if i == len(self._subtrees) - 1:
+        #                 self._subtrees[i].update_rectangles((x + pushx, y + pushy, width, math.ceil(height * percent_total)-y))
+        #                 actualy += height * percent_total - y
+        #                 pushy = math.ceil(actualy)
+        #             else:
+        #                 #Vertical rectangle
+        #                 self._subtrees[i].update_rectangles((x + pushx, y + pushy, width, math.floor(height * percent_total)))
+        #                 actualy += height * percent_total
+        #                 pushy = math.floor(actualy)
+        #         else:
+        #             if i == len(self._subtrees) - 1:
+        #                 self._subtrees[i].update_rectangles((x + pushx, y + pushy, math.ceil(width * percent_total)-x, height))
+        #                 actualx += width * percent_total - x
+        #                 pushx = math.ceil(actualx)
+        #             else:
+        #                 self._subtrees[i].update_rectangles((x + pushx, y + pushy, math.floor(width * percent_total), height))
+        #                 actualx += width * percent_total
+        #                 pushx = math.floor(actualx)
 
     #Used in for rect, color in self.tree.get_rectangles()
     def get_rectangles(self) -> List[Tuple[Tuple[int, int, int, int],
@@ -226,18 +255,30 @@ class TMTree:
         always return the leftmost and topmost rectangle (wherever applicable).
         """
         x, y, width, height = self.rect
-        #If self's parent tree is expanded
-        if (self._parent_tree and self._parent_tree._expanded
-                and not self._expanded):
-            if (x <= pos[0] <= x + width) and (y <= pos[1] <= y + height):
-                return self
-            else:
-                return None
+
+        if not(x <= pos[0] <= x + width) or not(y <= pos[1] <= y + height):
+            return None
+        elif not self._expanded:
+            return self
         else:
             for sub in self._subtrees:
-                if sub.get_tree_at_position(pos):
-                    return sub.get_tree_at_position(pos)
-            return None
+                selected = sub.get_tree_at_position(pos)
+                if selected:
+                    return selected
+            return self
+        # if not self._subtrees:
+        #     print('hoho')
+        # if (self._parent_tree and self._parent_tree._expanded
+        #         and not self._expanded):
+        #     if (x <= pos[0] <= x + width) and (y <= pos[1] <= y + height):
+        #         #When visualising
+        #         # print('eee')
+        #         return self
+        # for sub in self._subtrees:
+        #     selected  = sub.get_tree_at_position(pos)
+        #     if selected:
+        #         return selected
+        # return None
 
 
     def update_data_sizes(self) -> int:
@@ -261,7 +302,9 @@ class TMTree:
         if self._subtrees is None or self._subtrees == []:
             if destination._subtrees is not None and destination._subtrees != []:
                 destination._subtrees.append(self)
-                self._parent_tree._subtrees.remove(self)
+                destination.data_size += self.data_size
+                if self._parent_tree:
+                    self._parent_tree._subtrees.remove(self)
 
 
     def change_size(self, factor: float) -> None:
@@ -272,18 +315,18 @@ class TMTree:
 
         Do nothing if this tree is not a leaf.
         """
-        if self._subtrees is None or self._subtrees == []:
+        if not self._subtrees:
             if self.data_size == 0:
                 if factor > 0:
-                    amnt = 0
+                    self.data_size = 0
                 else:
-                    amnt = 1
+                    self.data_size = 1
             else:
                 if factor > 0:
                     amnt = math.ceil(self.data_size * (1 + factor))
                 else:
                     amnt = math.floor(self.data_size * (1 + factor))
-            self.data_size = amnt
+                self.data_size = amnt
 
     def delete_self(self) -> bool:
         """Removes the current node from the visualization and
@@ -327,17 +370,20 @@ class TMTree:
                 # s.update_rectangles(self.rect)
 
     def collapse(self) -> None:
-        self._expanded = False
-        # if not self._parent_tree:
-        #     self._expanded = True
-        # else:
-        #     self._parent_tree._expanded = False
+        # self._expanded = False
+        if not self._parent_tree:
+            self._expanded = False
+        else:
+            self._expanded = False
+            self._parent_tree._expanded = False
 
     def collapse_all(self) -> None:
         #If this node has no parent trees
-        self._expanded = False
+        self.collapse()
         if self._parent_tree:
+            self.update_rectangles(self.rect)
             self._parent_tree.collapse_all()
+
         # if self._subtrees == [] or self._subtrees is None:
         #     self._expanded = False
         # else:
@@ -364,13 +410,17 @@ class TMTree:
         """Return the string used to separate names in the string
         representation of a path from the tree root to this tree.
         """
-        raise NotImplementedError
+        return ':'
 
     def get_suffix(self) -> str:
         """Return the string used at the end of the string representation of
         a path from the tree root to this tree.
         """
-        raise NotImplementedError
+        if not self._subtrees:
+            return ' (Paper)'
+        else:
+            return ' (Category)'
+
 
 class FileSystemTree(TMTree):
     """A tree representation of files and folders in a file system.
